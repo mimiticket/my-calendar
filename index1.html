@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Planner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mali:wght@400;600&family=Quicksand:wght@500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Mali', 'Quicksand', cursive, sans-serif;
+        }
+
+        body {
+            background-color: #f7eff0;
+            color: #5c4b51;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .planner-card {
+            width: 100%;
+            max-width: 850px;
+            background: #fffdfa;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(222, 185, 190, 0.25);
+            border: 2px solid #f4e3e5;
+            position: relative;
+        }
+
+        /* Header */
+        .planner-header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .planner-title {
+            font-size: 2.2rem;
+            color: #7a5e57;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .planner-subtitle {
+            font-size: 0.85rem;
+            color: #a88b84;
+            margin-top: -2px;
+        }
+
+        .month-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff8f8;
+            border: 1px solid #f2dcdb;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .month-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #8c6b63;
+        }
+
+        .nav-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-btn {
+            background: #fce4e6;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #8c6b63;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #f8c3c7;
+        }
+
+        /* Months pastel pills */
+        .month-pills {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .month-pill {
+            font-size: 0.7rem;
+            padding: 4px 0;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #7a6e6b;
+            background: #f0f0f0;
+        }
+
+        /* สีพาสเทล 12 เดือน */
+        .month-pill:nth-child(1)  { background: #fde2e4; }
+        .month-pill:nth-child(2)  { background: #ffcad4; }
+        .month-pill:nth-child(3)  { background: #b5e2fa; }
+        .month-pill:nth-child(4)  { background: #f7d6e0; }
+        .month-pill:nth-child(5)  { background: #e2ece9; }
+        .month-pill:nth-child(6)  { background: #d8e2dc; }
+        .month-pill:nth-child(7)  { background: #e8dff5; }
+        .month-pill:nth-child(8)  { background: #fce1e4; }
+        .month-pill:nth-child(9)  { background: #fcf6bd; }
+        .month-pill:nth-child(10) { background: #d0f4de; }
+        .month-pill:nth-child(11) { background: #a9def9; }
+        .month-pill:nth-child(12) { background: #e4c1f9; }
+
+        .month-pill.active {
+            outline: 2px solid #8c6b63;
+            font-weight: bold;
+        }
+
+        /* Grid ตาราง */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-card {
+            background: #ffffff;
+            border: 1px solid #f3e5e8;
+            border-radius: 14px;
+            min-height: 125px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .day-header {
+            margin-bottom: 4px;
+        }
+
+        /* วงกลมพาสเทลครอบเลขวันที่ */
+        .day-num-circle {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #f7d6e0;
+            color: #63474d;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .is-today .day-num-circle {
+            background: #e63946;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(230, 57, 70, 0.4);
+        }
+
+        .other-month {
+            opacity: 0.3;
+            background: #faf8f8;
+        }
+
+        /* 4 บรรทัด + Checkbox */
+        .lines-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            height: 100%;
+        }
+
+        .line-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border-bottom: 1px dashed #eedce0;
+            padding-bottom: 1px;
+            height: 22px;
+        }
+
+        /* Checkbox ติ๊กถูกสีเขียว */
+        .line-item input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #d4a3a8;
+            border-radius: 3px;
+            cursor: pointer;
+            outline: none;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .line-item input[type="checkbox"]:checked {
+            background-color: #52b788;
+            border-color: #52b788;
+        }
+
+        .line-item input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: white;
+            font-size: 9px;
+            position: absolute;
+            top: -3px;
+            left: 1px;
+        }
+
+        .line-item input[type="text"] {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 0.75rem;
+            color: #5c4b51;
+            outline: none;
+        }
+
+        /* Bottom Section: Top Priorities & Notes */
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .bottom-box {
+            background: #fff8f8;
+            border: 1px solid #f2dcdb;
+            border-radius: 14px;
+            padding: 10px 12px;
+        }
+
+        .box-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #8c6b63;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .priority-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px dashed #edd5d8;
+            padding: 3px 0;
+        }
+
+        .priority-item input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 0.75rem;
+            outline: none;
+            color: #5c4b51;
+        }
+
+        .notes-area {
+            width: 100%;
+            height: 70px;
+            border: none;
+            background: transparent;
+            resize: none;
+            outline: none;
+            font-size: 0.75rem;
+            color: #5c4b51;
+            line-height: 1.5;
+        }
+
+        .footer-quote {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ba9298;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            .day-card { min-height: 100px; padding: 3px; }
+            .planner-title { font-size: 1.6rem; }
+            .bottom-section { grid-template-columns: 1fr; }
+            .month-pills { font-size: 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="planner-card">
+    <div class="planner-header">
+        <div class="planner-title">DAILY PLANNER</div>
+        <div class="planner-subtitle">plan your day, every day 💕</div>
+    </div>
+
+    <!-- แถบเลือกเดือน JAN - DEC -->
+    <div class="month-pills" id="monthPills">
+        <div class="month-pill">JAN</div>
+        <div class="month-pill">FEB</div>
+        <div class="month-pill">MAR</div>
+        <div class="month-pill">APR</div>
+        <div class="month-pill">MAY</div>
+        <div class="month-pill">JUN</div>
+        <div class="month-pill">JUL</div>
+        <div class="month-pill">AUG</div>
+        <div class="month-pill">SEP</div>
+        <div class="month-pill">OCT</div>
+        <div class="month-pill">NOV</div>
+        <div class="month-pill">DEC</div>
+    </div>
+
+    <div class="month-bar">
+        <div class="month-display" id="monthDisplay">MONTH: </div>
+        <div class="nav-btns">
+            <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
+            <button class="nav-btn" onclick="changeMonth(1)">❯</button>
+        </div>
+    </div>
+
+    <!-- ตารางวัน -->
+    <div class="days-grid" id="daysGrid"></div>
+
+    <!-- โซนล่าง: TOP PRIORITIES & NOTES -->
+    <div class="bottom-section">
+        <div class="bottom-box">
+            <div class="box-title">TOP PRIORITIES 💖</div>
+            <div class="priority-item"><span>💖</span><input type="text" id="p1" oninput="saveExtraData()"></div>
+            <div class="priority-item"><span>💛</span><input type="text" id="p2" oninput="saveExtraData()"></div>
+            <div class="priority-item"><span>💚</span><input type="text" id="p3" oninput="saveExtraData()"></div>
+        </div>
+        <div class="bottom-box">
+            <div class="box-title">NOTES 🌸</div>
+            <textarea class="notes-area" id="notesArea" placeholder="Type notes here..." oninput="saveExtraData()"></textarea>
+        </div>
+    </div>
+
+    <div class="footer-quote">you've got this! 💕</div>
+</div>
+
+<script>
+    const monthNames = [
+        "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+        "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+    ];
+
+    // ล็อกไว้ที่เดือน/ปีปัจจุบันเสมอ
+    const today = new Date();
+    let currentYear = today.getFullYear();
+    let currentMonth = today.getMonth();
+
+    let calendarData = JSON.parse(localStorage.getItem('pastel_planner_data')) || {};
+
+    function renderCalendar() {
+        document.getElementById('monthDisplay').innerText = `MONTH: ${monthNames[currentMonth]} ${currentYear}`;
+        
+        // อัปเดตการเลือกเดือนบนแถบ JAN-DEC
+        const pills = document.querySelectorAll('.month-pill');
+        pills.forEach((pill, idx) => {
+            if (idx === currentMonth) pill.classList.add('active');
+            else pill.classList.remove('active');
+        });
+
+        const daysGrid = document.getElementById('daysGrid');
+        daysGrid.innerHTML = '';
+
+        const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+        const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const prevLastDate = new Date(currentYear, currentMonth, 0).getDate();
+
+        // เดือนก่อนหน้า
+        for (let x = firstDayIndex; x > 0; x--) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day-card other-month';
+            dayDiv.innerHTML = `<div class="day-num-circle">${prevLastDate - x + 1}</div>`;
+            daysGrid.appendChild(dayDiv);
+        }
+
+        // เดือนปัจจุบัน
+        for (let i = 1; i <= lastDate; i++) {
+            const dayDiv = document.createElement('div');
+            const isToday = i === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+            
+            dayDiv.className = `day-card ${isToday ? 'is-today' : ''}`;
+
+            const dateKey = `${currentYear}-${currentMonth + 1}-${i}`;
+            const dayData = calendarData[dateKey] || [
+                { c: false, t: '' },
+                { c: false, t: '' },
+                { c: false, t: '' },
+                { c: false, t: '' }
+            ];
+
+            let linesHTML = '';
+            for (let line = 0; line < 4; line++) {
+                const item = dayData[line] || { c: false, t: '' };
+                linesHTML += `
+                    <div class="line-item">
+                        <input type="checkbox" ${item.c ? 'checked' : ''} 
+                            onchange="saveData('${dateKey}', ${line}, 'c', this.checked)">
+                        <input type="text" value="${item.t || ''}" 
+                            oninput="saveData('${dateKey}', ${line}, 't', this.value)">
+                    </div>
+                `;
+            }
+
+            // สุ่มเปลี่ยนโทนพาสเทลวงกลมตัวเลข
+            const circleColors = ['#f7d6e0', '#b5e2fa', '#e2ece9', '#fcf6bd', '#d0f4de', '#e4c1f9'];
+            const bgCol = circleColors[i % circleColors.length];
+
+            dayDiv.innerHTML = `
+                <div class="day-header">
+                    <div class="day-num-circle" style="${isToday ? '' : 'background:'+bgCol}">${i}</div>
+                </div>
+                <div class="lines-container">
+                    ${linesHTML}
+                </div>
+            `;
+
+            daysGrid.appendChild(dayDiv);
+        }
+
+        loadExtraData();
+    }
+
+    function saveData(dateKey, lineIndex, field, value) {
+        if (!calendarData[dateKey]) {
+            calendarData[dateKey] = [
+                { c: false, t: '' },
+                { c: false, t: '' },
+                { c: false, t: '' },
+                { c: false, t: '' }
+            ];
+        }
+        calendarData[dateKey][lineIndex][field] = value;
+        localStorage.setItem('pastel_planner_data', JSON.stringify(calendarData));
+    }
+
+    function saveExtraData() {
+        const extraKey = `extra-${currentYear}-${currentMonth + 1}`;
+        const extraData = {
+            p1: document.getElementById('p1').value,
+            p2: document.getElementById('p2').value,
+            p3: document.getElementById('p3').value,
+            notes: document.getElementById('notesArea').value
+        };
+        localStorage.setItem(extraKey, JSON.stringify(extraData));
+    }
+
+    function loadExtraData() {
+        const extraKey = `extra-${currentYear}-${currentMonth + 1}`;
+        const extraData = JSON.parse(localStorage.getItem(extraKey)) || { p1: '', p2: '', p3: '', notes: '' };
+        document.getElementById('p1').value = extraData.p1 || '';
+        document.getElementById('p2').value = extraData.p2 || '';
+        document.getElementById('p3').value = extraData.p3 || '';
+        document.getElementById('notesArea').value = extraData.notes || '';
+    }
+
+    function changeMonth(step) {
+        currentMonth += step;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar();
+    }
+
+    renderCalendar();
+</script>
+
+</body>
+</html>
